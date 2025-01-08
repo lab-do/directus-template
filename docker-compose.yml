@@ -1,0 +1,12 @@
+services:
+  directus:
+    image: directus/directus:11.3.5
+    ports:
+      - 8055:8055
+    volumes:
+      - ./database:/directus/database
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+      - ./snapshots/:/directus/snapshots/
+    env_file:
+      - .env.dev

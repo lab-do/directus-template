@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+
+.directus-template-cli
+
+node_modules/
+database/
+uploads/
+templates/
