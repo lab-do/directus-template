@@ -1,21 +1,28 @@
 #!/bin/sh
 
-# Start Directus normally in the background
-node cli.js bootstrap &
-directus_pid=$!
+# Strip quotes from DB_FILENAME if present
+DB_FILENAME=${DB_FILENAME#\"}
+DB_FILENAME=${DB_FILENAME%\"}
 
-# Wait for Directus to finish bootstrapping
-wait $directus_pid
+# Restore the database if it does not already exist.
+if [ -f "$DB_FILENAME" ]; then
+  echo "Database already exists, skipping restore"
+else
+  echo "No database found, restoring from replica if exists"
+  /usr/local/bin/litestream restore -if-replica-exists "${DB_FILENAME}"
+fi
 
-# Comment out the following line if you want to sync the snapshot
-# npx directus schema apply --yes ./snapshots/snapshot-latest.yaml
+node cli.js bootstrap
 
-# Now apply Directus schema snapshot if needed
-# if [ "$APPLY_SNAPSHOT" = "true" ]; then
-#   echo "Applying schema snapshot..."
-#   # wget -O snapshot-latest.yaml https://storage.googleapis.com/bnn-directus-snapshots/snapshot-latest.yaml
-#   npx directus schema apply --yes ./snapshots/snapshot.yaml
-# fi
+# Set default value for snapshot path if not provided
+SNAPSHOT_PATH="${SNAPSHOT_PATH:-/directus/snapshots/snapshot-latest.yaml}"
 
-# Continue to run Directus in the foreground
-exec pm2-runtime start ecosystem.config.cjs
+# Apply Directus schema snapshot
+if [ "${APPLY_SNAPSHOT}" = "true" ]; then
+  echo "Applying schema snapshot from ${SNAPSHOT_PATH} ..."
+  # wget -O snapshot-latest.yaml <your-snapshot-url>
+  npx directus schema apply --yes "${SNAPSHOT_PATH}"
+fi
+
+# Run Directus and Litestream
+exec /usr/local/bin/litestream replicate -exec "pm2-runtime start ecosystem.config.cjs"

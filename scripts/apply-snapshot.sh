@@ -33,10 +33,4 @@ if ! docker exec -i "$CONTAINER" npx directus schema apply "$SNAPSHOT_FILE" -y; 
   error "Failed to apply schema changes"
 fi
 
-# Restart container
-info "Restarting Directus container..."
-if ! docker restart "$CONTAINER"; then
-  error "Failed to restart container"
-fi
-
 success "Schema changes applied successfully"

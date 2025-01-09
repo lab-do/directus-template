@@ -1,0 +1,12 @@
+# AWS/Cloudflare R2/other S3 compatible storage credentials
+access-key-id: ${STORAGE_S3_KEY}
+secret-access-key: ${STORAGE_S3_SECRET}
+
+dbs:
+  - path: ${DB_FILENAME} # database path in the docker container
+    replicas:
+      - type: s3
+        bucket: ${STORAGE_S3_BUCKET} # the name of the remote bucket to replicate to.
+        region: ${STORAGE_S3_REGION} # e.g. eu-west-1, optional if using Cloduflare R2
+        endpoint: ${STORAGE_S3_ENDPOINT} # the endpoint URL of the S3-compatible service.
+        path: database # Specifies the path to use within the bucket.
