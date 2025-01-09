@@ -5,6 +5,8 @@
 .directus-template-cli
 
 node_modules/
-database/
-uploads/
 templates/
+database/*
+uploads/*
+snapshots/*
+extensions/*
